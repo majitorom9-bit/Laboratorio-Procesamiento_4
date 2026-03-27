@@ -1,0 +1,12 @@
+# Laboratorio-Procesamiento_4
+
+# OBJETIVOS DE LA PRACTICA
+
+# PARTE A
+# PARTE B 
+# PARTE C
+
+# ANALISIS 
+
+# PREGUNTAS A DISCUSIÓN 
+# CONCLUSIONES
