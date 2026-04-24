@@ -561,11 +561,16 @@ plt.show()
 # ANALISIS 
 
 # PREGUNTAS A DISCUSIÓN 
-**2. ¿Cambian los valores de frecuencia media y mediana a medida que el
+**1. ¿Cambian los valores de frecuencia media y mediana a medida que el
 músculo se acerca a la fatiga? ¿A qué podría atribuirse este cambio?**
 
-**1.  ¿Cómo justifica el uso de herramientas como la transformada de Fourier en
+Sí, los valores de frecuencia media y frecuencia mediana cambian a medida que el músculo se acerca a la fatiga, y en general se observa una disminución progresiva de ambos, esto ocurre porque, durante la fatiga muscular, se reduce la velocidad de conducción de las fibras musculares y se modifican los patrones de activación de las unidades motoras. Como consecuencia, la señal EMG pierde contenido de altas frecuencias y su espectro se desplaza hacia frecuencias más bajas, lo que explica la disminución de estos indicadores a lo largo del tiempo.
+
+**2.  ¿Cómo justifica el uso de herramientas como la transformada de Fourier en
 escenarios como, por ejemplo, terapias de rehabilitación?**
+
+El uso de la transformada de Fourier se justifica en escenarios como terapias de rehabilitación porque permite analizar la señal EMG en el dominio de la frecuencia, proporcionando información que no es evidente solo observando la señal en el tiempo, gracias a esta herramienta, es posible identificar cambios asociados a la fatiga muscular, evaluar el estado funcional del músculo y hacer un seguimiento objetivo del progreso del paciente. Esto resulta muy útil para ajustar la intensidad de los ejercicios, prevenir sobrecargas y mejorar la toma de decisiones en procesos de recuperación muscular.
+
 # CONCLUSIONES
 
 
