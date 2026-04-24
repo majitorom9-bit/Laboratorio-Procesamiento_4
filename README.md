@@ -298,31 +298,364 @@ plt.show()
 # PARTE B 
 **1. PREPARACION Y UBICACION DE LOS ELECTRODOS**
 
-En esta etapa, se seleccionó el grupo muscular a analizar (como el bíceps o antebrazo) y se procedió a la colocación de los electrodos de superficie. Se aseguró que la piel estuviera limpia y seca.
+En esta etapa, se seleccionó el grupo muscular a analizar (como el bíceps o antebrazo) y se procedió a la colocación de los electrodos de superficie. Se aseguró que la piel estuviera limpia y seca, una vez colocados los electrodos, se registró la señal electromiográfica mientras el voluntario realizaba contracciones musculares repetidas hasta alcanzar un estado de fatiga. Durante la adquisición, se mantuvieron condiciones controladas para evitar interferencias externas.
 
-**2. OBTENER LA SEÑAL **
+**2. OBTENER LA SEÑAL**
 
-Una vez colocados los electrodos, se registró la señal electromiográfica mientras el voluntario realizaba contracciones musculares repetidas hasta alcanzar un estado de fatiga. Durante la adquisición, se mantuvieron condiciones controladas para evitar interferencias externas.
+En esta parte se carga y se muestra la señal EMG obtenida. El objetivo es verla en el tiempo para entender cómo se comporta, identificar cambios en la amplitud y reconocer cuándo hay actividad muscular.
 
-3. Filtrado de la señal
+**2.1 Carga de datos**
+
+En esta primera parte se importan las librerías necesarias y se carga el archivo que contiene la señal EMG. La función np.loadtxt permite leer los datos del archivo. Luego, se extrae la última columna del archivo, la cual corresponde a la señal electromiográfica. Se obtuvo la señal EMG en formato numérico para poder procesarla y analizarla posteriormente.
+
+```python
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+archivo = 'openseñalkatham.txt'
+datos = np.loadtxt(archivo, comments='#')
+senal = datos[:, -1]
+
+```
+
+**2.2 Construcción del eje de tiempo**
+
+Aquí se define la frecuencia de muestreo de la señal, que en este caso es de 1000 Hz. Con esta información, se construye un vector de tiempo que asigna un instante temporal a cada muestra de la señal.
+
+```python
+
+fs = 1000
+t = np.arange(len(senal)) / fs
+
+```
+
+**2.3 Visualización de la señal**
+
+En esta última parte se grafica la señal EMG en función del tiempo, con el objetivo de visualizar el comportamiento de la señal, identificar sus variaciones y reconocer posibles contracciones musculares, lo cual es fundamental antes de realizar cualquier procesamiento adicional.
+
+```python
+
+plt.figure(figsize=(12,4))
+plt.plot(t, senal)
+plt.title("Señal EMG tomada")
+plt.xlabel("Tiempo (s)")
+plt.ylabel("Amplitud")
+plt.grid(True)
+plt.show()
+
+```
+**2.4 Grafica de la señal**
+
+<img width="769" height="300" alt="image" src="https://github.com/user-attachments/assets/6015fc2d-a4aa-4896-8b90-8157882be2ec" />
+
+
+**3. FILTRADO DE LA SEÑAL**
 
 La señal obtenida fue procesada mediante la aplicación de un filtro pasa banda entre 20 y 450 Hz. Este paso permitió eliminar componentes no deseados como ruido de baja frecuencia, interferencias eléctricas y artefactos de movimiento, conservando únicamente la información relevante de la actividad muscular.
 
-**Cálculo manual del filtro**
+**3.1 Cálculo manual del filtro**
 
 <img width="1038" height="1838" alt="image" src="https://github.com/user-attachments/assets/e82123e6-fc81-43ff-a91d-4804aefd7b8e" />
 
-4. Segmentación de la señal
+**3.2 Carga de la señal**
 
-Posteriormente, la señal filtrada fue dividida en segmentos correspondientes a cada contracción realizada por el voluntario. Esta segmentación permitió analizar de forma individual cada evento muscular.
+En esta parte se importan las librerías necesarias y se carga la señal EMG desde un archivo. Luego, se define la frecuencia de muestreo y se crea el vector de tiempo.
 
-5. Cálculo de parámetros frecuenciales
+```python
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import lfilter, freqz
+
+archivo = 'openseñalkatham.txt'
+datos = np.loadtxt(archivo, comments='#')
+senal = datos[:, -1]
+
+fs = 1000
+t = np.arange(len(senal)) / fs
+```
+
+**3.3 Definición del filtro**
+
+Aquí se definen las frecuencias de corte del filtro (20 Hz y 450 Hz), que corresponden al rango de interés de la señal EMG. También se define el orden del filtro (N) y otros parámetros necesarios para su diseño.
+
+```python
+f1 = 20
+f2 = 450
+
+w1 = 2 * np.pi * f1 / fs
+w2 = 2 * np.pi * f2 / fs
+
+N = 401
+alpha = (N - 1) // 2
+
+n = np.arange(N)
+```
+
+**3.4Construcción del filtro FIR**
+
+En esta parte se construye el filtro FIR. Primero se calcula la respuesta ideal (hd) usando funciones seno. Luego, se aplica una ventana de Hamming (w) para suavizar el filtro y reducir efectos no deseados. Finalmente, se obtiene el filtro real (h), con el objetivo de diseñar un filtro que elimine ruido y conserve solo las frecuencias útiles de la señal EMG.
+
+```python
+hd = np.zeros(N)
+
+for i in range(N):
+    if i == alpha:
+        hd[i] = (w2 - w1) / np.pi
+    else:
+        hd[i] = (np.sin(w2 * (i - alpha)) - np.sin(w1 * (i - alpha))) / (np.pi * (i - alpha))
+
+w = 0.54 - 0.46 * np.cos(2 * np.pi * n / (N - 1))
+
+h = hd * w
+
+```
+
+**3.5 Aplicación del filtro y visualización**
+
+Aquí se aplica el filtro FIR a la señal original utilizando lfilter. Luego, se grafican ambas señales (original y filtrada) para compararlas.
+
+```python
+senal_filtrada = lfilter(h, 1.0, senal)
+
+plt.figure(figsize=(12,4))
+plt.plot(t, senal, label='Señal original', alpha=0.5)
+plt.plot(t, senal_filtrada, label='Señal filtrada FIR', linewidth=1)
+plt.title('Filtro FIR ')
+plt.xlabel('Tiempo (s)')
+plt.ylabel('Amplitud')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+```
+
+**3.6 Grafica de la señal**
+
+<img width="777" height="300" alt="image" src="https://github.com/user-attachments/assets/276094ad-f36b-4f4d-8d00-f1b9785bc915" />
+
+
+**4. Segmentación de la señal**
+
+En esta parte del código se realiza el procesamiento de la señal EMG con el objetivo de detectar y segmentar las contracciones musculares. Primero, la señal filtrada se rectifica y se suaviza mediante un filtro pasabajos para obtener la envolvente, la cual permite visualizar de manera más clara los niveles de actividad muscular.
+A partir de la señla ya suavisada, se define un umbral que permite identificar automáticamente los periodos en los que el músculo está activo. Con base en este criterio, se determinan los puntos de inicio y fin de cada contracción.
+Luego, se visualiza la señal junto con el umbral y las regiones detectadas, lo que facilita la interpretación del proceso. Finalmente, se extraen los segmentos correspondientes a cada contracción y se grafican de forma individual, permitiendo analizar con mayor detalle sus características.
+En conjunto, este procedimiento permite transformar la señal continua en eventos discretos de actividad muscular, lo cual es fundamental para su análisis posterior.
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import butter, filtfilt
+
+
+senal_rectificada = np.abs(senal_filtrada)
+
+
+fc_env = 5  # frecuencia de corte para suavizar la envolvente (Hz)
+b_env, a_env = butter(2, fc_env / (fs / 2), btype='low')
+envolvente = filtfilt(b_env, a_env, senal_rectificada)
+
+
+plt.figure(figsize=(12,4))
+plt.plot(t[:len(senal_filtrada)], senal_filtrada, label='Señal filtrada', alpha=0.5)
+plt.plot(t[:len(envolvente)], envolvente, label='Envolvente', linewidth=2, color='crimson')
+plt.xlabel('Tiempo (s)')
+plt.ylabel('Amplitud')
+plt.title('Señal filtrada y envolvente')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+umbral = np.mean(envolvente) + 0.5 * np.std(envolvente)
+en_contraccion = envolvente > umbral
+
+
+inicios = np.where(np.diff(en_contraccion.astype(int)) == 1)[0]
+fines = np.where(np.diff(en_contraccion.astype(int)) == -1)[0]
+
+
+if len(fines) < len(inicios):
+    fines = np.append(fines, len(envolvente) - 1)
+elif len(fines) > len(inicios):
+    fines = fines[:len(inicios)]
+
+print("Número de contracciones detectadas:", len(inicios))
+
+plt.figure(figsize=(12,4))
+plt.plot(t[:len(envolvente)], envolvente, label='Envolvente', color='purple')
+plt.axhline(umbral, color='red', linestyle='--', label='Umbral')
+
+for ini, fin in zip(inicios, fines):
+    plt.axvspan(t[ini], t[fin], color='orange', alpha=0.3)
+
+plt.xlabel('Tiempo (s)')
+plt.ylabel('Amplitud')
+plt.title('Detección de contracciones')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+#  Segmentar cada contracción
+
+segmentos = [senal_filtrada[ini:fin] for ini, fin in zip(inicios, fines)]
+segmentos_t = [t[ini:fin] for ini, fin in zip(inicios, fines)]
+
+print("Se extrajeron", len(segmentos), "segmentos.")
+
+plt.figure(figsize=(12, 2*len(segmentos)))
+
+for i, seg in enumerate(segmentos):
+    plt.subplot(len(segmentos), 1, i+1)
+    plt.plot(segmentos_t[i], seg, color='teal')
+    plt.title(f'Contracción {i+1}')
+    plt.ylabel('Amplitud')
+    plt.grid(True)
+
+plt.xlabel('Tiempo (s)')
+plt.tight_layout()
+plt.show()
+
+```
+**4.1 Graficas de la señal**
+
+<img width="786" height="316" alt="image" src="https://github.com/user-attachments/assets/0b58185e-77c6-4aac-8532-3497032ccccb" />
+
+<img width="844" height="305" alt="image" src="https://github.com/user-attachments/assets/ba44cc77-4cbb-4464-b716-51274835df47" />
+
+| 5 primeras contracciones
+
+<img width="910" height="751" alt="image" src="https://github.com/user-attachments/assets/b3b66b4d-cacd-4516-9af5-f20b08b82695" />
+
+| 5 contracciones del medio
+
+<img width="907" height="748" alt="image" src="https://github.com/user-attachments/assets/a8d8f7e4-6376-42e1-abbb-cf712f074ef4" />
+
+| 5 ultimas contracciones
+
+<img width="899" height="767" alt="image" src="https://github.com/user-attachments/assets/19ab27a5-2596-4649-a550-b7e07f3e25ea" />
+
+
+**5. Cálculo de parámetros frecuenciales**
 
 Para cada uno de los segmentos, se calcularon la frecuencia media y la frecuencia mediana a partir del espectro de la señal. Estos parámetros fueron utilizados para caracterizar el comportamiento del músculo durante las contracciones.
 
-6. Análisis de resultados
+```python
 
-Finalmente, los resultados obtenidos fueron graficados, permitiendo observar la evolución de las frecuencias a medida que avanzaba la fatiga muscular. A partir de estas gráficas, se analizaron las tendencias y se identificaron patrones asociados al cansancio muscular.
+import numpy as np
+import pandas as pd
+
+# Funciones
+
+def frecuencia_media(freqs, potencia):
+    return np.sum(freqs * potencia) / np.sum(potencia)
+
+def frecuencia_mediana(freqs, potencia):
+    potencia_acum = np.cumsum(potencia)
+    mitad = potencia_acum[-1] / 2
+    idx = np.where(potencia_acum >= mitad)[0][0]
+    return freqs[idx]
+
+# Cálculo para cada contracción
+
+frecuencias_medias = []
+frecuencias_medianas = []
+
+for i, seg in enumerate(segmentos):
+
+    seg = seg - np.mean(seg)
+
+    N = len(seg)
+
+    # FFT
+    fft_vals = np.fft.fft(seg)
+    freqs = np.fft.fftfreq(N, d=1/fs)
+
+    # Solo frecuencias positivas
+    mask = freqs >= 0
+    freqs_pos = freqs[mask]
+    fft_pos = fft_vals[mask]
+
+    # Espectro de potencia
+    potencia = np.abs(fft_pos)**2
+
+    # Evitar división por cero
+    if np.sum(potencia) == 0:
+        f_media = 0
+        f_mediana = 0
+    else:
+        f_media = frecuencia_media(freqs_pos, potencia)
+        f_mediana = frecuencia_mediana(freqs_pos, potencia)
+
+    frecuencias_medias.append(f_media)
+    frecuencias_medianas.append(f_mediana)
+
+    print(f"Contracción {i+1}:")
+    print(f"  Frecuencia media   = {f_media:.2f} Hz")
+    print(f"  Frecuencia mediana = {f_mediana:.2f} Hz")
+    print("-----------------------------------")
+
+```
+En este código se realiza el análisis en el dominio de la frecuencia para cada una de las contracciones previamente segmentadas. Primero, se definen dos funciones: una para calcular la frecuencia media, que corresponde al promedio ponderado de las frecuencias según su energía, y otra para calcular la frecuencia mediana, que representa la frecuencia que divide el espectro en dos partes con igual contenido de potencia.
+
+Luego, para cada segmento de la señal, se elimina el valor promedio con el fin de centrarla y evitar componentes no deseadas. A continuación, se aplica la Transformada Rápida de Fourier (FFT), lo que permite obtener el contenido frecuencial de la señal. De este resultado, se seleccionan únicamente las frecuencias positivas, ya que contienen la información relevante, y se calcula el espectro de potencia a partir del cuadrado de la magnitud.
+
+Con estos datos, se calculan la frecuencia media y la frecuencia mediana para cada contracción. Además, se incluye una verificación para evitar errores en caso de que la potencia total sea cero. Finalmente, los resultados se almacenan en listas y se imprimen en pantalla de forma organizada, indicando los valores correspondientes a cada contracción.
+
+| Primeras 5 contracciones
+<img width="258" height="316" alt="image" src="https://github.com/user-attachments/assets/07a29ac5-c6a1-4683-ac84-86342b5a2f19" />
+
+| 5 contracciones del medio
+<img width="261" height="312" alt="image" src="https://github.com/user-attachments/assets/ee493ab9-d8b2-4156-8fbc-61cc4c561869" />
+
+| Ultimas 5 contracciones
+<img width="289" height="317" alt="image" src="https://github.com/user-attachments/assets/7b0e07c3-d3d0-4a20-9e99-a874b283ca41" />
+
+**6. Análisis de resultados**
+
+En este código se organizan y se visualizan los resultados obtenidos del análisis en frecuencia de cada contracción. Primero, se construye una tabla utilizando la librería pandas, donde se incluye el número de cada contracción junto con sus valores de frecuencia media y frecuencia mediana. Esto permite tener la información de forma ordenada y fácil de interpretar.
+
+Luego, se realiza una gráfica en la que se representan estos valores en función del número de contracción. Se trazan dos curvas: una correspondiente a la frecuencia media y otra a la frecuencia mediana, utilizando diferentes marcadores para diferenciarlas, esta representación analiza cómo cambian las características frecuenciales de la señal a lo largo del tiempo, permitiendo identificar tendencias asociadas a la fatiga muscular, como una posible disminución de las frecuencias a medida que avanzan las contracciones.
+
+```python
+
+import pandas as pd
+import numpy as np
+
+tabla = pd.DataFrame({
+    "Contracción": np.arange(1, len(segmentos)+1),
+    "Frecuencia media (Hz)": frecuencias_medias,
+    "Frecuencia mediana (Hz)": frecuencias_medianas
+})
+
+
+
+plt.figure(figsize=(10,5))
+
+plt.plot(tabla["Contracción"],
+         tabla["Frecuencia media (Hz)"],
+         marker='o', linewidth=2, label='Frecuencia media')
+
+plt.plot(tabla["Contracción"],
+         tabla["Frecuencia mediana (Hz)"],
+         marker='s', linewidth=2, label='Frecuencia mediana')
+
+plt.xlabel("Número de contracción")
+plt.ylabel("Frecuencia (Hz)")
+plt.title("Evolución de la frecuencia media y mediana durante la fatiga muscular")
+plt.xticks(tabla["Contracción"])
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+
+```
+
+Finalmente, los resultados obtenidos fueron graficados, permitiendo observar la evolución de las frecuencias a medida que avanzaba la fatiga muscular.
+
+<img width="921" height="445" alt="image" src="https://github.com/user-attachments/assets/bfeb9db4-8ad4-4c06-ba7f-a0cd80a62e0b" />
+
 
 **Diagrama de Flujo**
 
@@ -403,17 +736,15 @@ plt.show()
 
 | PRIMERAS 5 CONTRACCIONES
 
-<img width="605" height="629" alt="image" src="https://github.com/user-attachments/assets/b302a411-845a-4efa-ac8b-2ed7061fbfd1" />
-
+<img width="616" height="630" alt="image" src="https://github.com/user-attachments/assets/a9c03c7a-9b73-4ee8-97f8-d9717f5086aa" />
 
 | 5 CONTRACIONES DEL MEDIO
 
-<img width="614" height="627" alt="image" src="https://github.com/user-attachments/assets/647cfae2-e74a-47e2-a44a-1caf52d279a2" />
-
+<img width="614" height="625" alt="image" src="https://github.com/user-attachments/assets/792bd535-63a0-49ba-9c40-ba9358725f4f" />
 
 | ULTIMAS 5 CONTRACCIONES 
 
-<img width="614" height="630" alt="image" src="https://github.com/user-attachments/assets/8f7c5e65-36b9-444c-8f3b-bd4a93a1eed7" />
+<img width="607" height="631" alt="image" src="https://github.com/user-attachments/assets/315d9837-7f73-4d62-9d54-8191b979cee3" />
 
 
 **2 COMPARACION ENTRE CONTRACCIONES**
@@ -458,7 +789,6 @@ plt.show()
 ```
 
 <img width="641" height="361" alt="image" src="https://github.com/user-attachments/assets/e63f8f80-1189-4417-87d3-ed380d7f9481" />
-
 
 **3. Identificación de patrones de fatiga**
 
@@ -552,8 +882,7 @@ plt.grid(True)
 plt.show()
 ```
 
-
-<img width="463" height="350" alt="image" src="https://github.com/user-attachments/assets/e6e9bbcc-6e99-4c7d-b08a-46631811f89d" />
+<img width="686" height="365" alt="image" src="https://github.com/user-attachments/assets/2e8c4ae6-1f97-4ae7-9d6e-f7adf749bd40" />
 
 
 
