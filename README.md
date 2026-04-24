@@ -308,6 +308,10 @@ Una vez colocados los electrodos, se registró la señal electromiográfica mien
 
 La señal obtenida fue procesada mediante la aplicación de un filtro pasa banda entre 20 y 450 Hz. Este paso permitió eliminar componentes no deseados como ruido de baja frecuencia, interferencias eléctricas y artefactos de movimiento, conservando únicamente la información relevante de la actividad muscular.
 
+**Cálculo manual del filtro**
+
+<img width="1038" height="1838" alt="image" src="https://github.com/user-attachments/assets/e82123e6-fc81-43ff-a91d-4804aefd7b8e" />
+
 4. Segmentación de la señal
 
 Posteriormente, la señal filtrada fue dividida en segmentos correspondientes a cada contracción realizada por el voluntario. Esta segmentación permitió analizar de forma individual cada evento muscular.
