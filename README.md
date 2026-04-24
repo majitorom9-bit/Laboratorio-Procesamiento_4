@@ -555,6 +555,7 @@ plt.show()
 
 **Diagrama de Flujo**
 
+<img width="971" height="1535" alt="image" src="https://github.com/user-attachments/assets/12680773-18a6-47d5-95bb-7cc680ff0b49" />
 
 
 # ANALISIS 
