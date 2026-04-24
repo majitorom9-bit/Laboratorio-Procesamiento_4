@@ -561,6 +561,11 @@ plt.show()
 # ANALISIS 
 
 # PREGUNTAS A DISCUSIÓN 
+**2. ¿Cambian los valores de frecuencia media y mediana a medida que el
+músculo se acerca a la fatiga? ¿A qué podría atribuirse este cambio?**
+
+**1.  ¿Cómo justifica el uso de herramientas como la transformada de Fourier en
+escenarios como, por ejemplo, terapias de rehabilitación?**
 # CONCLUSIONES
 
 
