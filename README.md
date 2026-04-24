@@ -320,6 +320,11 @@ Para cada uno de los segmentos, se calcularon la frecuencia media y la frecuenci
 
 Finalmente, los resultados obtenidos fueron graficados, permitiendo observar la evolución de las frecuencias a medida que avanzaba la fatiga muscular. A partir de estas gráficas, se analizaron las tendencias y se identificaron patrones asociados al cansancio muscular.
 
+**Diagrama de Flujo**
+
+<img width="975" height="1535" alt="image" src="https://github.com/user-attachments/assets/493e99f7-8343-42ab-ad19-5858aff19b58" />
+
+
 # PARTE C
 
 **1. APLICACION DE LA TRANSFORMADA RAPIDO DE FOURIER (FFT)**
@@ -545,6 +550,11 @@ plt.show()
 
 
 <img width="463" height="350" alt="image" src="https://github.com/user-attachments/assets/e6e9bbcc-6e99-4c7d-b08a-46631811f89d" />
+
+
+
+**Diagrama de Flujo**
+
 
 
 # ANALISIS 
