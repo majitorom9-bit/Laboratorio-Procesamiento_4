@@ -289,6 +289,12 @@ plt.show()
 <img width="747" height="373" alt="image" src="https://github.com/user-attachments/assets/5cb53497-fac5-4d8d-af78-20451df5b229" />
 
 
+
+
+**Diagrama de Flujo**
+
+<img width="915" height="1535" alt="image" src="https://github.com/user-attachments/assets/7530c8e1-9073-47f1-bfa3-00f4b2d4b209" />
+
 # PARTE B 
 **1. PREPARACION Y UBICACION DE LOS ELECTRODOS**
 
